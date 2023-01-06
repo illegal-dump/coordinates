@@ -1,0 +1,11 @@
+@startuml
+skinparam defaultTextAlignment center
+
+[coordinates\n(kotlin+quarkus)] as coordinates
+database "database\n(PostgreSQL)" as database {
+}
+
+coordinates --> database
+' coordinates -left-> events
+
+@enduml
