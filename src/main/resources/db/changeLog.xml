@@ -1,0 +1,72 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.13.xsd">
+    <!--
+    ########################################################################################################################
+    Liquibase   SQL Server data type	Oracle data type	MySQL	    PostgreSQL
+    ########################################################################################################################
+    bigint	    bigint	                number(38,0)	    bigint	    bigint/bigserial
+    blob	    varbinary(max)	        blob	            blob	    oid
+    boolean	    bit	                    number(1)	        bit	        bit
+    char	    char	                char	            char	    character
+    clob	    nvarchar(max)	        clob	            longtext	text
+    currency	money	                number(15,2)	    decimal	    decimal
+    datetime	datetime	            timestamp	        timestamp	timestamp
+    date	    date	                date	            date	    date
+    decimal	    decimal	                decimal     	    decimal	    decimal
+    double	    float	                float(24)	        double	    double precision
+    float	    float	                float	            float	    float
+    int	        int	                    integer	            int	        integer/serial
+    mediumint	int	                    mediumint	        mediumint	mediumint
+    nchar	    nchar	                nchar	            nchar	    nchar
+    nvarchar	nvarchar	            nvarchar2	        nvarchar	varchar
+    number	    numeric	                number	            numeric	    numeric
+    smallint	smallint	            number(5)	        smallint	smallint/smallserial
+    time	    time	                date	            time	    time
+    timestamp	datetime	            timestamp	        timestamp	timestamp
+    tinyint	    tinyint	                number(3)	        tinyint	    smallint
+    uuid	    uniqueidentifier	    raw(16)	            char(36)	uuid
+    varchar	    varchar	                varchar2 	        varchar	    varchar/character
+    -->
+    <property name="now" value="now()" dbms="mysql,h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <!--
+    ########################################################################################################################
+    -->
+    <changeSet author="0i99" id="1">
+        <createTable tableName="coordinate">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="lat" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lng" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="0i99" >
+        <insert tableName="coordinate">
+            <column name="lat" value="50.23373232155869"/>
+            <column name="lng" value="19.024422356416804"/>
+            <column name="label" value="label 1"/>
+        </insert>
+
+        <insert tableName="coordinate">
+            <column name="lat" value="50.2346788213471"/>
+            <column name="lng" value="19.020270029616645"/>
+            <column name="label" value="label 2"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

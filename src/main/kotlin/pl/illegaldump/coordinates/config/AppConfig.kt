@@ -1,6 +1,7 @@
 package pl.illegaldump.coordinates.config
 
 import pl.illegaldump.coordinates.api.CoordinatesController
+import pl.illegaldump.coordinates.dao.CoordinatesDao
 import pl.illegaldump.coordinates.service.SearchService
 import pl.illegaldump.coordinates.service.SearchServiceImpl
 import javax.enterprise.context.ApplicationScoped
@@ -16,7 +17,15 @@ class AppConfig {
 
     @Produces
     @ApplicationScoped
-    fun searchService(): SearchService {
-        return SearchServiceImpl()
+    fun coordinatesDao(): CoordinatesDao {
+        return CoordinatesDao()
     }
+
+    @Produces
+    @ApplicationScoped
+    fun searchService(coordinatesDao: CoordinatesDao): SearchService {
+        return SearchServiceImpl(coordinatesDao)
+    }
+
+
 }

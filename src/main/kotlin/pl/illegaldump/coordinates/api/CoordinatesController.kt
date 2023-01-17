@@ -16,10 +16,10 @@ class CoordinatesController(
     private val defaults: DefaultsProperties
 ) : CoordinatesApi {
 
-    override fun getCCoordinates(lat: BigDecimal?, lng: BigDecimal?, size: Int?): CoordinateRspDto {
+    override fun getCoordinates(lat: BigDecimal?, lng: BigDecimal?, zoom: Int?, size: Int?): CoordinateRspDto {
         val center =
             Coordinate(lat?.toDouble() ?: defaults.center().lat(), lng?.toDouble() ?: defaults.center().lng(), "center")
-        val list = searchService.getCoordinates(center, size ?: defaults.size())
+        val list = searchService.getCoordinates(center, zoom ?: defaults.zoom(), size ?: defaults.size())
         return CoordinateRspDto(list.map { it.toCoordinateDto() })
     }
 

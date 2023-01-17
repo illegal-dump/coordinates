@@ -14,7 +14,7 @@ paths:
       tags:
         - "coordinates"
       summary: "get coordinates"
-      operationId: getCCoordinates
+      operationId: getCoordinates
       parameters:
         - in: query
           description: "center lat"
@@ -28,6 +28,12 @@ paths:
           required: false
           schema:
             type: number
+        - in: query
+          description: "zoom"
+          name: zoom
+          required: false
+          schema:
+            type: integer
         - in: query
           description: "size"
           name: size

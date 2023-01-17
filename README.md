@@ -1,6 +1,7 @@
 ## Install Helm
 
 Please see [Helm documentation](https://helm.sh/docs/intro/install/)
+
 ## PostgreSQL
 
 ### install via helm
@@ -104,3 +105,57 @@ kubectl get secret --namespace default postgresql-15 -o jsonpath="{.data.postgre
 
 after successful configuration:
 ![...](doc/img/pgAdmin-2.png)
+
+
+### Create user,database etc scripts
+
+```
+CREATE ROLE "coordinates" WITH
+    LOGIN
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    INHERIT
+    NOREPLICATION
+    CONNECTION LIMIT -1
+    PASSWORD 'Dr52PdrY8_1D3';
+    
+CREATE TABLESPACE "ts_db1"
+  OWNER coordinates
+  LOCATION '/bitnami/postgresql/data/';
+
+ALTER TABLESPACE "ts_db1"
+  OWNER TO coordinates;
+  
+CREATE DATABASE db1
+    WITH
+    OWNER = coordinates
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TABLESPACE = "ts_db1"
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False; 
+    
+CREATE SCHEMA coordinates
+    AUTHORIZATION coordinates;    
+
+-- rest of ddl in Liquibase    
+        
+```
+
+## Application
+
+### Build and run via docker
+
+```shell
+docker build -f Dockerfile -t illegal-dump-coordinates .
+docker run -i --rm -p 8061:8061 illegal-dump-coordinates
+```
+
+### Build native and run via docker
+
+```shell
+docker build -f Dockerfile.native -t illegal-dump-coordinates-native .
+docker run -i --rm -p 8061:8061 illegal-dump-coordinates-native
+```

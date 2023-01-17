@@ -4,7 +4,7 @@ import pl.illegaldump.coordinates.domain.Coordinate
 
 interface SearchService {
     /**
-     * Get coordinates based on center and area size
+     * Get coordinates based on center and area size and zoom
      */
-    fun getCoordinates(center: Coordinate, size: Int) : List<Coordinate>
+    fun getCoordinates(center: Coordinate, zoom: Int, size: Int): List<Coordinate>
 }

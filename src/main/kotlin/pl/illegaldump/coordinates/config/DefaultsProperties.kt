@@ -11,6 +11,8 @@ interface DefaultsProperties {
 
     fun center(): Center
 
+    fun zoom(): Int
+
     @ConfigMapping(prefix = "center")
     interface Center {
         fun lat(): Double

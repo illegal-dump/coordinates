@@ -4,7 +4,7 @@ package pl.illegaldump.coordinates.domain
  *
  * @see [link](https://en.wikipedia.org/wiki/Geographic_coordinate_system)
  */
-class Coordinate(
+data class Coordinate(
     /**
      * Latitude
      */
