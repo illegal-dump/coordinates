@@ -162,3 +162,35 @@ mvn clean compile quarkus:dev
 ```
 
 To activate specific profile type `-Dquarkus.profile=MY_PROFILE`
+
+### Run locallly via k8
+
+Make sure porstresql is running. Then apply workloads by:
+
+```shell
+kubectl apply -f k8/
+```
+
+test it by: 
+```shell
+curl -vk http://minikube.local:30061/api/coordinates?lat=50.2338&lng=19.021&size=800&zoom=6
+
+* Connected to minikube.local (192.168.49.2) port 30061 (#0)
+> GET /api/coordinates?lat=50.2338 HTTP/1.1
+> Host: minikube.local:30061
+> User-Agent: curl/7.81.0
+> Accept: */*
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< content-length: 156
+< Content-Type: application/json;charset=UTF-8
+< 
+* Connection #0 to host minikube.local left intact
+{"coordinates":[{"lat":50.23373232155869,"lng":19.024422356416803,"label":"label 1"},{"lat":50.2346788213471,"lng":19.020270029616643,"label":"label 2"}]}
+```
+
+where minikube.local points to minikube ip
+```
+echo "$(minikube ip) minikube.local" | sudo tee -a /etc/hosts
+```
