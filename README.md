@@ -8,7 +8,7 @@ Please see [Helm documentation](https://helm.sh/docs/intro/install/)
 
 ```shell
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install postgresql-15 bitnami/postgresql
+helm install -f ./helm/postgres/values.yaml postgresql bitnami/postgresql --debug
 ```
 
 installation output:
@@ -17,22 +17,22 @@ installation output:
 
 PostgreSQL can be accessed via port 5432 on the following DNS names from within your cluster:
 
-    postgresql-15.default.svc.cluster.local - Read/Write connection
+    postgresql.default.svc.cluster.local - Read/Write connection
 
 To get the password for "postgres" run:
 
-    export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql-15 -o jsonpath="{.data.postgres-password}" | base64 -d)
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
 
 To connect to your database run the following command:
 
-    kubectl run postgresql-15-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.1.0-debian-11-r19 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
-      --command -- psql --host postgresql-15 -U postgres -d postgres -p 5432
+    kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.1.0-debian-11-r19 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgresql -U postgres -d postgres -p 5432
 
     > NOTE: If you access the container using bash, make sure that you execute "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash" in order to avoid the error "psql: local user with ID 1001} does not exist"
 
 To connect to your database from outside the cluster execute the following commands:
 
-    kubectl port-forward --namespace default svc/postgresql-15 5432:5432 &
+    kubectl port-forward --namespace default svc/postgresql 5432:5432 &
     PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
 
 ```
@@ -56,6 +56,17 @@ output:
 
 ```
 
+INFO: if You have trouble with authentication after reinstalling, it may be caused by persistent volume from previous installation, please run 
+```shell
+kubectl get pv
+kubectl get pvc
+````
+to check, and delete by (use specific pv and pvc from above):
+```shell
+kubectl delete pvc data-postgresql-0
+kubectl delete pv pvc-1fa4e021-499a-44f8-8282-b32144de22be
+````
+
 
 ### Test locally
 
@@ -64,13 +75,13 @@ Let's login to pgAdmin, check first cluster by `kubectl get all`
 ```
 NAME                           READY   STATUS    RESTARTS   AGE
 pod/pgadmin-7b867bd6d8-6qjz4   1/1     Running   0          20m
-pod/postgresql-15-0            1/1     Running   0          4d17h
+pod/postgresql-0            1/1     Running   0          4d17h
 
 NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
 service/kubernetes         ClusterIP      10.96.0.1       <none>        443/TCP        9d
 service/pgadmin            LoadBalancer   10.109.20.232   <pending>     80:32025/TCP   20m
-service/postgresql-15      ClusterIP      10.111.170.37   <none>        5432/TCP       4d17h
-service/postgresql-15-hl   ClusterIP      None            <none>        5432/TCP       4d17h
+service/postgresql      ClusterIP      10.111.170.37   <none>        5432/TCP       4d17h
+service/postgresql-hl   ClusterIP      None            <none>        5432/TCP       4d17h
 
 NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/pgadmin   1/1     1            1           20m
@@ -79,7 +90,7 @@ NAME                                 DESIRED   CURRENT   READY   AGE
 replicaset.apps/pgadmin-7b867bd6d8   1         1         1       20m
 
 NAME                             READY   AGE
-statefulset.apps/postgresql-15   1/1     4d17h
+statefulset.apps/postgresql   1/1     4d17h
 
 ```
 
@@ -99,7 +110,7 @@ Log in with username: `pgadmin4@pgadmin.org` and password: `admin` (as in [docum
 
 Configure database with postgres credentials - user: `postgres` and password obtained by:
 ```shell
-kubectl get secret --namespace default postgresql-15 -o jsonpath="{.data.postgres-password}"
+kubectl get secret --namespace default postgresql -o jsonpath="{.data.postgres-password}"
 ```
 ![...](doc/img/pgAdmin-1.png)
 
@@ -107,42 +118,17 @@ after successful configuration:
 ![...](doc/img/pgAdmin-2.png)
 
 
-### Create user,database etc scripts
+### Log to pgsql
 
+```shell
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+
+kubectl run postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.1.0-debian-11-r19 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgresql -U postgres -d postgres -p 5432
 ```
-CREATE ROLE "coordinates" WITH
-    LOGIN
-    NOSUPERUSER
-    NOCREATEDB
-    NOCREATEROLE
-    INHERIT
-    NOREPLICATION
-    CONNECTION LIMIT -1
-    PASSWORD 'Dr52PdrY8_1D3';
-    
-CREATE TABLESPACE "ts_db1"
-  OWNER coordinates
-  LOCATION '/bitnami/postgresql/data/';
 
-ALTER TABLESPACE "ts_db1"
-  OWNER TO coordinates;
-  
-CREATE DATABASE db1
-    WITH
-    OWNER = coordinates
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE = 'en_US.UTF-8'
-    TABLESPACE = "ts_db1"
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False; 
-    
-CREATE SCHEMA coordinates
-    AUTHORIZATION coordinates;    
 
--- rest of ddl in Liquibase    
-        
-```
+
 
 ## Application
 
@@ -159,3 +145,20 @@ docker run -i --rm -p 8061:8061 illegal-dump-coordinates
 docker build -f Dockerfile.native -t illegal-dump-coordinates-native .
 docker run -i --rm -p 8061:8061 illegal-dump-coordinates-native
 ```
+
+### Run locally 
+
+If we want to connect to postgresql we have to set up a NodePort of port forward to current instance managed by K8. 
+
+Run
+```shell
+kubectl port-forward --namespace default svc/postgresql 5432:5432 
+```
+
+and now we can connect to postgresql by localhost
+
+```shell
+mvn clean compile quarkus:dev
+```
+
+To activate specific profile type `-Dquarkus.profile=MY_PROFILE`

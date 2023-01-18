@@ -36,9 +36,11 @@
     <!--
     ########################################################################################################################
     -->
+
+
     <changeSet author="0i99" id="1">
-        <createTable tableName="coordinate">
-            <column name="id" type="int" autoIncrement="true">
+        <createTable tableName="coordinate" >
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="lat" type="double">
@@ -61,7 +63,7 @@
             <column name="label" value="label 1"/>
         </insert>
 
-        <insert tableName="coordinate">
+        <insert tableName="coordinate" >
             <column name="lat" value="50.2346788213471"/>
             <column name="lng" value="19.020270029616645"/>
             <column name="label" value="label 2"/>
