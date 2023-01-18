@@ -20,6 +20,25 @@ spec:
           env:
             - name: QUARKUS_PROFILE
               value: prd-k8
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8061
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: 8061
+            initialDelaySeconds: 30
+            periodSeconds: 30
 
 ---
 
