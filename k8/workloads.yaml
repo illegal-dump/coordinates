@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: illegal-dump-coordinates
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: coordinates
